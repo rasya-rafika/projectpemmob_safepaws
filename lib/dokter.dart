@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'models.dart' as model;
+import 'models.dart';
 import 'login.dart';
 
 // Dokter class
@@ -18,7 +18,7 @@ class Dokter {
 }
 
 class DokterPage extends StatefulWidget {
-  final model.UserRole userRole;
+  final UserRole userRole;
 
   const DokterPage({Key? key, required this.userRole}) : super(key: key);
 
@@ -27,6 +27,7 @@ class DokterPage extends StatefulWidget {
 }
 
 class _DokterPageState extends State<DokterPage> {
+  // Sample data (in a real app, this would come from a database)
   List<Dokter> _dokterList = [
     Dokter(
       id: '1',
@@ -67,12 +68,14 @@ class _DokterPageState extends State<DokterPage> {
 
   void _showAddEditDoctorDialog({Dokter? dokter}) {
     if (dokter != null) {
+      // Edit mode - fill the form with existing data
       _namaController.text = dokter.nama;
       _pengalamanController.text = dokter.pengalaman;
       _lokasiController.text = dokter.lokasi;
       _currentDoctorId = dokter.id;
       _isEditing = true;
     } else {
+      // Add mode - clear the form
       _clearForm();
     }
 
@@ -143,6 +146,7 @@ class _DokterPageState extends State<DokterPage> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 if (_isEditing) {
+                  // Update existing doctor
                   setState(() {
                     final index = _dokterList.indexWhere((d) => d.id == _currentDoctorId);
                     if (index != -1) {
@@ -155,6 +159,7 @@ class _DokterPageState extends State<DokterPage> {
                     }
                   });
                 } else {
+                  // Add new doctor
                   setState(() {
                     _dokterList.add(
                       Dokter(
@@ -185,7 +190,9 @@ class _DokterPageState extends State<DokterPage> {
         content: Text('Apakah Anda yakin ingin menghapus dokter ${dokter.nama}?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
             child: const Text('Batal'),
           ),
           ElevatedButton(
@@ -235,7 +242,9 @@ class _DokterPageState extends State<DokterPage> {
         ),
         actions: [
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
             child: const Text('Tutup'),
           ),
         ],
@@ -245,8 +254,8 @@ class _DokterPageState extends State<DokterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = widget.userRole == model.UserRole.admin;
-
+    final isAdmin = widget.userRole == UserRole.admin;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dokter Hewan'),
