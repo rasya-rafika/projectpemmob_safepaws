@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "880010265880",
+    "project_id": "safepaws-afd4a",
+    "storage_bucket": "safepaws-afd4a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880010265880:android:ebc27d94f258926df78a6d",
+        "android_client_info": {
+          "package_name": "com.example.projectpemmob_safepaws"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAklRr2BEkH4NxUA5VcQ6_qunagl5MG-fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

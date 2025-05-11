@@ -1,9 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'login.dart';
-import 'dokter.dart';
-import 'models.dart';
 
-void main() {
+import 'firebase_options.dart';
+import 'login.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Tambahkan log untuk memastikan inisialisasi sukses
+  print('Firebase berhasil diinisialisasi:');
+  print('Firebase App Name: ${Firebase.app().name}');
+  print('Firebase Project ID: ${Firebase.app().options.projectId}');
+  
   runApp(const SafePawsApp());
 }
 

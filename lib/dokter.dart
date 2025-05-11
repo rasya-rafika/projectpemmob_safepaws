@@ -1,48 +1,20 @@
 import 'package:flutter/material.dart';
-import 'models.dart';
+
+import 'dokter_model.dart'; // Import kelas Dokter dari sini
 import 'login.dart';
-
-// Dokter class
-class Dokter {
-  String id;
-  String nama;
-  String pengalaman;
-  String lokasi;
-
-  Dokter({
-    required this.id,
-    required this.nama,
-    required this.pengalaman,
-    required this.lokasi,
-  });
-}
+import 'models.dart'; // Hanya untuk UserRole
+import 'services/dokter_service.dart';
 
 class DokterPage extends StatefulWidget {
   final UserRole userRole;
 
-  const DokterPage({Key? key, required this.userRole}) : super(key: key);
+  const DokterPage({super.key, required this.userRole});
 
   @override
-  _DokterPageState createState() => _DokterPageState();
+  State<DokterPage> createState() => _DokterPageState();
 }
 
 class _DokterPageState extends State<DokterPage> {
-  // Sample data (in a real app, this would come from a database)
-  List<Dokter> _dokterList = [
-    Dokter(
-      id: '1',
-      nama: 'dr. Anita Wati',
-      pengalaman: '5 tahun',
-      lokasi: 'Klinik Hewan Sehat, Jakarta Selatan',
-    ),
-    Dokter(
-      id: '2',
-      nama: 'drh. Budi Santoso, Sp.KH',
-      pengalaman: '8 tahun',
-      lokasi: 'Rumah Sakit Hewan Cinta Satwa, Bandung',
-    ),
-  ];
-
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _pengalamanController = TextEditingController();
@@ -68,14 +40,12 @@ class _DokterPageState extends State<DokterPage> {
 
   void _showAddEditDoctorDialog({Dokter? dokter}) {
     if (dokter != null) {
-      // Edit mode - fill the form with existing data
       _namaController.text = dokter.nama;
       _pengalamanController.text = dokter.pengalaman;
       _lokasiController.text = dokter.lokasi;
       _currentDoctorId = dokter.id;
       _isEditing = true;
     } else {
-      // Add mode - clear the form
       _clearForm();
     }
 
@@ -95,12 +65,7 @@ class _DokterPageState extends State<DokterPage> {
                     labelText: 'Nama',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama dokter wajib diisi';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Nama dokter wajib diisi' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -109,12 +74,7 @@ class _DokterPageState extends State<DokterPage> {
                     labelText: 'Pengalaman',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Pengalaman dokter wajib diisi';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Pengalaman wajib diisi' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -123,12 +83,7 @@ class _DokterPageState extends State<DokterPage> {
                     labelText: 'Lokasi Praktik',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lokasi praktik wajib diisi';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value == null || value.isEmpty ? 'Lokasi wajib diisi' : null,
                 ),
               ],
             ),
@@ -143,33 +98,18 @@ class _DokterPageState extends State<DokterPage> {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
+                final newDokter = Dokter(
+                  id: _currentDoctorId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                  nama: _namaController.text,
+                  pengalaman: _pengalamanController.text,
+                  lokasi: _lokasiController.text,
+                );
                 if (_isEditing) {
-                  // Update existing doctor
-                  setState(() {
-                    final index = _dokterList.indexWhere((d) => d.id == _currentDoctorId);
-                    if (index != -1) {
-                      _dokterList[index] = Dokter(
-                        id: _currentDoctorId!,
-                        nama: _namaController.text,
-                        pengalaman: _pengalamanController.text,
-                        lokasi: _lokasiController.text,
-                      );
-                    }
-                  });
+                  await DokterService().updateDokter(newDokter);
                 } else {
-                  // Add new doctor
-                  setState(() {
-                    _dokterList.add(
-                      Dokter(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        nama: _namaController.text,
-                        pengalaman: _pengalamanController.text,
-                        lokasi: _lokasiController.text,
-                      ),
-                    );
-                  });
+                  await DokterService().addDokter(newDokter);
                 }
                 Navigator.of(context).pop();
                 _clearForm();
@@ -190,16 +130,12 @@ class _DokterPageState extends State<DokterPage> {
         content: Text('Apakah Anda yakin ingin menghapus dokter ${dokter.nama}?'),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _dokterList.removeWhere((d) => d.id == dokter.id);
-              });
+            onPressed: () async {
+              await DokterService().deleteDokter(dokter.id);
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
@@ -242,9 +178,7 @@ class _DokterPageState extends State<DokterPage> {
         ),
         actions: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Tutup'),
           ),
         ],
@@ -255,23 +189,18 @@ class _DokterPageState extends State<DokterPage> {
   @override
   Widget build(BuildContext context) {
     final isAdmin = widget.userRole == UserRole.admin;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dokter Hewan'),
         backgroundColor: Colors.blue,
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.white),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
             ),
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -284,71 +213,67 @@ class _DokterPageState extends State<DokterPage> {
               children: [
                 const Icon(Icons.person, color: Colors.blue),
                 const SizedBox(width: 8),
-                Text(
-                  'Login sebagai: ${isAdmin ? 'Admin' : 'User Biasa'}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Login sebagai: ${isAdmin ? 'Admin' : 'User Biasa'}',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _dokterList.length,
-              itemBuilder: (context, index) {
-                final dokter = _dokterList[index];
-                return Card(
-                  elevation: 3,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    title: Text(
-                      dokter.nama,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+            child: StreamBuilder<List<Dokter>>(
+              stream: DokterService().getDokterList(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                final dokterList = snapshot.data ?? [];
+
+                if (dokterList.isEmpty) {
+                  return const Center(child: Text('Belum ada data dokter.'));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: dokterList.length,
+                  itemBuilder: (context, index) {
+                    final dokter = dokterList[index];
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        title: Text(dokter.nama,
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            Text('Pengalaman: ${dokter.pengalaman}'),
+                            Text('Lokasi: ${dokter.lokasi}'),
+                          ],
+                        ),
+                        onTap: () => _showDoctorDetails(dokter),
+                        trailing: isAdmin
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => _showAddEditDoctorDialog(dokter: dokter),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => _confirmDeleteDoctor(dokter),
+                                  ),
+                                ],
+                              )
+                            : null,
                       ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.star, size: 16, color: Colors.amber),
-                            const SizedBox(width: 4),
-                            Text(dokter.pengalaman),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on, size: 16, color: Colors.red),
-                            const SizedBox(width: 4),
-                            Expanded(child: Text(dokter.lokasi)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    onTap: () => _showDoctorDetails(dokter),
-                    trailing: isAdmin
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _showAddEditDoctorDialog(dokter: dokter),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _confirmDeleteDoctor(dokter),
-                              ),
-                            ],
-                          )
-                        : const Icon(Icons.arrow_forward_ios),
-                  ),
+                    );
+                  },
                 );
               },
             ),
