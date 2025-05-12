@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.projectpemmob_safepaws"
-    compileSdk = 30
+    compileSdk = 34
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -36,7 +36,7 @@ android {
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Signing with the debug keys for now, so flutter run --release works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
