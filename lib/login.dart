@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dokter.dart';
+import 'homepage.dart';
 import 'models.dart' as model;
 
 class LoginPage extends StatefulWidget {
@@ -28,47 +28,48 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
 
-      await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
 
-      final username = _usernameController.text.trim();
-      final password = _passwordController.text.trim();
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
 
-      model.User? foundUser;
-      for (var user in _users) {
-        if (user.username == username && user.password == password) {
-          foundUser = user;
-          break;
-        }
-      }
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (foundUser != null) {
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DokterPage(userRole: foundUser!.role),
-          ),
-        );
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid username or password'),
-            backgroundColor: Colors.red,
-          ),
-        );
+    model.User? foundUser;
+    for (var user in _users) {
+      if (user.username == username && user.password == password) {
+        foundUser = user;
+        break;
       }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (foundUser != null) {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(userRole: foundUser!.role),
+        ),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid username or password'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

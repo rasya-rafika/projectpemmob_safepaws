@@ -1,10 +1,10 @@
-// User roles enum
+// models.dart
+
 enum UserRole {
   admin,
   user,
 }
 
-// User class to store user data
 class User {
   final String username;
   final String password;
