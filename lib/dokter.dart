@@ -192,13 +192,13 @@ class _DokterPageState extends State<DokterPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dokter Hewan'),
-        backgroundColor: Colors.blue,
+        title: const Text('Dokter Hewan', style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFA0451B),
         actions: [
           TextButton(
             onPressed: () => Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const LoginPage()),
+              MaterialPageRoute(builder: (context) => LoginPage()),
             ),
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
@@ -208,13 +208,13 @@ class _DokterPageState extends State<DokterPage> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.blue.shade100,
+            color: const Color(0xFFFF6600),
             child: Row(
               children: [
                 const Icon(Icons.person, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text('Login sebagai: ${isAdmin ? 'Admin' : 'User Biasa'}',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
               ],
             ),
           ),

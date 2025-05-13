@@ -84,41 +84,42 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.pets,
-              size: 100,
-              color: Colors.blue,
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/ic_paw_logo.png',
+            width: 200,
+            height: 200,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'SafePaws',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFF6600),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'SafePaws',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Cinta Untuk Hewan Peliharaan Anda',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.grey,
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Cinta Untuk Hewan Peliharaan Anda',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 32),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 32),
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
