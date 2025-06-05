@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dokter.dart';
+import 'adopsi.dart';
 import 'login.dart';
 import 'models.dart';
 
@@ -102,11 +103,21 @@ class HomePage extends StatelessWidget {
                         );
                       },
                     ),
+
                     _buildFiturItem(
                       context,
                       title: 'Adopsi',
-                      imagePath: 'assets/images/ic_shelter.png', // <- SUDAH BENAR
+                      imagePath: 'assets/images/ic_shelter.png',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AdopsiPage(),
+                          ),
+                        );
+                      },
                     ),
+
                     _buildFiturItem(
                       context,
                       title: 'Komunitas',
