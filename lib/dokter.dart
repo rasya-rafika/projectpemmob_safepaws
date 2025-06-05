@@ -38,6 +38,63 @@ class _DokterPageState extends State<DokterPage> {
     _isEditing = false;
   }
 
+  void _confirmSaveDoctor(VoidCallback onConfirm) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Simpan'),
+        content: const Text('Apakah Anda yakin ingin menyimpan data dokter ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              onConfirm();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6600),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6600),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAddEditDoctorDialog({Dokter? dokter}) {
     if (dokter != null) {
       _namaController.text = dokter.nama;
@@ -98,23 +155,29 @@ class _DokterPageState extends State<DokterPage> {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               if (_formKey.currentState!.validate()) {
-                final newDokter = Dokter(
-                  id: _currentDoctorId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-                  nama: _namaController.text,
-                  pengalaman: _pengalamanController.text,
-                  lokasi: _lokasiController.text,
-                );
-                if (_isEditing) {
-                  await DokterService().updateDokter(newDokter);
-                } else {
-                  await DokterService().addDokter(newDokter);
-                }
-                Navigator.of(context).pop();
-                _clearForm();
+                _confirmSaveDoctor(() async {
+                  final newDokter = Dokter(
+                    id: _currentDoctorId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                    nama: _namaController.text,
+                    pengalaman: _pengalamanController.text,
+                    lokasi: _lokasiController.text,
+                  );
+                  if (_isEditing) {
+                    await DokterService().updateDokter(newDokter);
+                  } else {
+                    await DokterService().addDokter(newDokter);
+                  }
+                  Navigator.of(context).pop();
+                  _clearForm();
+                });
               }
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6600),
+              foregroundColor: Colors.white,
+            ),
             child: Text(_isEditing ? 'Simpan' : 'Tambah'),
           ),
         ],
@@ -179,6 +242,10 @@ class _DokterPageState extends State<DokterPage> {
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6600),
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Tutup'),
           ),
         ],
@@ -196,10 +263,7 @@ class _DokterPageState extends State<DokterPage> {
         backgroundColor: const Color(0xFFA0451B),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
-            ),
+            onPressed: _confirmLogout,
             child: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -211,7 +275,7 @@ class _DokterPageState extends State<DokterPage> {
             color: const Color(0xFFFF6600),
             child: Row(
               children: [
-                const Icon(Icons.person, color: Colors.blue),
+                const Icon(Icons.person, color: Colors.white),
                 const SizedBox(width: 8),
                 Text('Login sebagai: ${isAdmin ? 'Admin' : 'User Biasa'}',
                     style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
@@ -261,7 +325,7 @@ class _DokterPageState extends State<DokterPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    icon: const Icon(Icons.edit, color: Color(0xFFFF6600)),
                                     onPressed: () => _showAddEditDoctorDialog(dokter: dokter),
                                   ),
                                   IconButton(
@@ -283,7 +347,7 @@ class _DokterPageState extends State<DokterPage> {
       floatingActionButton: isAdmin
           ? FloatingActionButton(
               onPressed: () => _showAddEditDoctorDialog(),
-              backgroundColor: Colors.blue,
+              backgroundColor: const Color(0xFFFF6600),
               child: const Icon(Icons.add),
             )
           : null,
