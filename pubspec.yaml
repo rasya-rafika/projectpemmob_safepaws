@@ -37,6 +37,8 @@ dependencies:
   cloud_firestore: ^4.14.0       # WAJIB untuk Firestore
   cupertino_icons: ^1.0.8
   firebase_database: ^10.5.7
+  firebase_storage: ^11.6.1
+  image_picker: ^1.1.1
 
 dev_dependencies:
   flutter_test:

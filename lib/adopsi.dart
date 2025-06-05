@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'models.dart'; // Hanya untuk UserRole
+import 'tambah_adopsi.dart';
 
 class AdopsiPage extends StatefulWidget {
   const AdopsiPage({Key? key}) : super(key: key);
@@ -61,7 +62,7 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
-              // Search bar
+              // Search bar dan tombol tambah
               Row(
                 children: [
                   Expanded(
@@ -80,13 +81,29 @@ class _AdopsiPageState extends State<AdopsiPage> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final newPet = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const TambahAdopsiPage()),
+                      );
+
+                      if (newPet != null && mounted) {
+                        setState(() {
+                          _allAnimals.add({
+                            'name': newPet['name'],
+                            'location': newPet['location'],
+                            'image': newPet['image'],
+                            'category': newPet['category'],
+                          });
+                        });
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
                       backgroundColor: Colors.deepOrange,
                     ),
                     child: const Icon(Icons.add, color: Colors.white),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -144,11 +161,19 @@ class _AdopsiPageState extends State<AdopsiPage> {
                           Expanded(
                             child: ClipRRect(
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                              child: Image.asset(
-                                animal['image']!,
-                                fit: BoxFit.contain,
-                                width: double.infinity,
-                              ),
+                              child: animal['image']!.startsWith('http')
+                                  ? Image.network(
+                                      animal['image']!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      errorBuilder: (_, __, ___) =>
+                                          const Icon(Icons.image_not_supported),
+                                    )
+                                  : Image.asset(
+                                      animal['image']!,
+                                      fit: BoxFit.contain,
+                                      width: double.infinity,
+                                    ),
                             ),
                           ),
                           Padding(
@@ -156,10 +181,10 @@ class _AdopsiPageState extends State<AdopsiPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(animal['name']!,
+                                Text(animal['name'] ?? '',
                                     style: const TextStyle(
                                         color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(animal['location']!,
+                                Text(animal['location'] ?? '',
                                     style: const TextStyle(color: Colors.white)),
                               ],
                             ),
