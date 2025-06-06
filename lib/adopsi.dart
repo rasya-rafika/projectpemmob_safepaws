@@ -1,35 +1,95 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
-import 'models.dart'; // Hanya untuk UserRole
+import 'models.dart';
 import 'tambah_adopsi.dart';
+import 'adopsi_model.dart';
+import 'services/adopsi_service.dart';
 
 class AdopsiPage extends StatefulWidget {
-  const AdopsiPage({Key? key}) : super(key: key);
+  final UserRole userRole;
+
+  const AdopsiPage({Key? key, required this.userRole}) : super(key: key);
 
   @override
   State<AdopsiPage> createState() => _AdopsiPageState();
 }
 
 class _AdopsiPageState extends State<AdopsiPage> {
-  final List<Map<String, String>> _allAnimals = [
-    {'name': 'Pussy', 'location': 'Mojokerto', 'image': 'assets/images/pussy.png', 'category': 'Kucing'},
-    {'name': 'Kuma', 'location': 'Surabaya', 'image': 'assets/images/kuma.png', 'category': 'Anjing'},
-    {'name': 'Jojo', 'location': 'Sidoarjo', 'image': 'assets/images/jojo.png', 'category': 'Kucing'},
-    {'name': 'Rocky', 'location': 'Lamongan', 'image': 'assets/images/rocky.png', 'category': 'Anjing'},
-    {'name': 'Willow', 'location': 'Kediri', 'image': 'assets/images/willow.png', 'category': 'Anjing'},
-    {'name': 'Ozzy', 'location': 'Bali', 'image': 'assets/images/ozzy.png', 'category': 'Kucing'},
-  ];
-
   final List<String> _categories = ['Semua', 'Kucing', 'Anjing', 'Burung', 'Kelinci', 'Lainnya'];
   String _selectedCategory = 'Semua';
 
-  List<Map<String, String>> get _filteredAnimals {
-    if (_selectedCategory == 'Semua') return _allAnimals;
-    return _allAnimals.where((animal) => animal['category'] == _selectedCategory).toList();
-  }
+  final List<HewanAdopsi> _dummyAnimals = [
+    HewanAdopsi(
+      id: '1',
+      nama: 'Pussy',
+      umur: '2',
+      jenisKelamin: 'Betina',
+      beratBadan: '3',
+      kategori: 'Kucing',
+      deskripsi: 'Manja dan lucu',
+      lokasi: 'Mojokerto',
+      imageUrl: 'assets/images/pussy.png',
+    ),
+    HewanAdopsi(
+      id: '2',
+      nama: 'Kuma',
+      umur: '1',
+      jenisKelamin: 'Jantan',
+      beratBadan: '5',
+      kategori: 'Anjing',
+      deskripsi: 'Setia dan pintar',
+      lokasi: 'Surabaya',
+      imageUrl: 'assets/images/kuma.png',
+    ),
+    HewanAdopsi(
+      id: '3',
+      nama: 'Jojo',
+      umur: '3',
+      jenisKelamin: 'Betina',
+      beratBadan: '4',
+      kategori: 'Kucing',
+      deskripsi: 'Tenang dan bersih',
+      lokasi: 'Sidoarjo',
+      imageUrl: 'assets/images/jojo.png',
+    ),
+    HewanAdopsi(
+      id: '4',
+      nama: 'Rocky',
+      umur: '4',
+      jenisKelamin: 'Jantan',
+      beratBadan: '6',
+      kategori: 'Anjing',
+      deskripsi: 'Ceria dan aktif',
+      lokasi: 'Lamongan',
+      imageUrl: 'assets/images/rocky.png',
+    ),
+    HewanAdopsi(
+      id: '5',
+      nama: 'Willow',
+      umur: '1.5',
+      jenisKelamin: 'Betina',
+      beratBadan: '2',
+      kategori: 'Anjing',
+      deskripsi: 'Pemalu tapi manis',
+      lokasi: 'Kediri',
+      imageUrl: 'assets/images/willow.png',
+    ),
+    HewanAdopsi(
+      id: '6',
+      nama: 'Ozzy',
+      umur: '2',
+      jenisKelamin: 'Jantan',
+      beratBadan: '3',
+      kategori: 'Kucing',
+      deskripsi: 'Suka tidur di pangkuan',
+      lokasi: 'Bali',
+      imageUrl: 'assets/images/ozzy.png',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = widget.userRole == UserRole.admin;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -62,53 +122,30 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
-              // Search bar dan tombol tambah
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Cari hewan adopsi',
-                        filled: true,
-                        fillColor: Colors.orange.shade50,
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
-                        ),
+              // Tombol tambah hanya untuk admin
+              if (isAdmin) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const TambahAdopsiPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const CircleBorder(),
+                        backgroundColor: Colors.deepOrange,
                       ),
+                      child: const Icon(Icons.add, color: Colors.white),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final newPet = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const TambahAdopsiPage()),
-                      );
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
 
-                      if (newPet != null && mounted) {
-                        setState(() {
-                          _allAnimals.add({
-                            'name': newPet['name'],
-                            'location': newPet['location'],
-                            'image': newPet['image'],
-                            'category': newPet['category'],
-                          });
-                        });
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      backgroundColor: Colors.deepOrange,
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Categories
+              // Kategori
               const Text('Categories', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               SizedBox(
@@ -138,66 +175,82 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
-              // Grid Hewan
+              // Gabungan Grid Dummy + Firestore
               Expanded(
-                child: GridView.builder(
-                  itemCount: _filteredAnimals.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemBuilder: (context, index) {
-                    final animal = _filteredAnimals[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.deepOrange,
-                        borderRadius: BorderRadius.circular(16),
+                child: StreamBuilder<List<HewanAdopsi>>(
+                  stream: AdopsiService().streamHewanAdopsi(),
+                  builder: (context, snapshot) {
+                    final firebaseAnimals = snapshot.data ?? [];
+
+                    final combined = [..._dummyAnimals, ...firebaseAnimals];
+
+                    final filteredAnimals = _selectedCategory == 'Semua'
+                        ? combined
+                        : combined.where((a) => a.kategori == _selectedCategory).toList();
+
+                    if (snapshot.connectionState == ConnectionState.waiting && firebaseAnimals.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (filteredAnimals.isEmpty) {
+                      return const Center(child: Text('Belum ada hewan di kategori ini.'));
+                    }
+
+                    return GridView.builder(
+                      itemCount: filteredAnimals.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 0.75,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                              child: animal['image']!.startsWith('http')
-                                  ? Image.network(
-                                      animal['image']!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      errorBuilder: (_, __, ___) =>
-                                          const Icon(Icons.image_not_supported),
-                                    )
-                                  : Image.asset(
-                                      animal['image']!,
-                                      fit: BoxFit.contain,
-                                      width: double.infinity,
-                                    ),
-                            ),
+                      itemBuilder: (context, index) {
+                        final animal = filteredAnimals[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.deepOrange,
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(animal['name'] ?? '',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontWeight: FontWeight.bold)),
-                                Text(animal['location'] ?? '',
-                                    style: const TextStyle(color: Colors.white)),
-                              ],
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                  child: animal.imageUrl.isEmpty
+                                      ? const Center(
+                                          child: Icon(Icons.pets, size: 40, color: Colors.white),
+                                        )
+                                      : Image.asset(
+                                          animal.imageUrl,
+                                          fit: BoxFit.contain,
+                                          width: double.infinity,
+                                        ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(animal.nama,
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    Text(animal.lokasi,
+                                        style: const TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Icon(Icons.favorite_border, color: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
-                          const Padding(
-                            padding: EdgeInsets.only(right: 8.0),
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: Icon(Icons.favorite_border, color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
                 ),

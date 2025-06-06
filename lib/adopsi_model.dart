@@ -6,7 +6,7 @@ class HewanAdopsi {
   final String beratBadan;
   final String kategori;
   final String deskripsi;
-  final String imageUrl;
+  final String imageUrl; // tetap ada untuk kompatibilitas
   final String lokasi;
 
   HewanAdopsi({
@@ -29,7 +29,7 @@ class HewanAdopsi {
       'beratBadan': beratBadan,
       'kategori': kategori,
       'deskripsi': deskripsi,
-      'imageUrl': imageUrl,
+      'imageUrl': imageUrl, // tetap menyimpan string kosong
       'lokasi': lokasi,
     };
   }
@@ -43,7 +43,7 @@ class HewanAdopsi {
       beratBadan: data['beratBadan'] ?? '',
       kategori: data['kategori'] ?? '',
       deskripsi: data['deskripsi'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
+      imageUrl: data['imageUrl'] ?? '', // kosongkan jika tidak ada gambar
       lokasi: data['lokasi'] ?? '',
     );
   }
