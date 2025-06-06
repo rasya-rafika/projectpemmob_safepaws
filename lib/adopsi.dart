@@ -86,6 +86,30 @@ class _AdopsiPageState extends State<AdopsiPage> {
     ),
   ];
 
+  void _konfirmasiHapus(HewanAdopsi animal) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Hewan'),
+        content: Text('Yakin ingin menghapus ${animal.nama}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await AdopsiService().deleteHewan(animal.id);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isAdmin = widget.userRole == UserRole.admin;
@@ -122,8 +146,7 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
-              // Tombol tambah hanya untuk admin
-              if (isAdmin) ...[
+              if (isAdmin)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -142,10 +165,8 @@ class _AdopsiPageState extends State<AdopsiPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-              ],
 
-              // Kategori
+              const SizedBox(height: 8),
               const Text('Categories', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               SizedBox(
@@ -175,13 +196,11 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
-              // Gabungan Grid Dummy + Firestore
               Expanded(
                 child: StreamBuilder<List<HewanAdopsi>>(
                   stream: AdopsiService().streamHewanAdopsi(),
                   builder: (context, snapshot) {
                     final firebaseAnimals = snapshot.data ?? [];
-
                     final combined = [..._dummyAnimals, ...firebaseAnimals];
 
                     final filteredAnimals = _selectedCategory == 'Semua'
@@ -206,49 +225,81 @@ class _AdopsiPageState extends State<AdopsiPage> {
                       ),
                       itemBuilder: (context, index) {
                         final animal = filteredAnimals[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.deepOrange,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                  child: animal.imageUrl.isEmpty
-                                      ? const Center(
-                                          child: Icon(Icons.pets, size: 40, color: Colors.white),
-                                        )
-                                      : Image.asset(
-                                          animal.imageUrl,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                        ),
-                                ),
+                        final isFirebaseData = !_dummyAnimals.any((d) => d.id == animal.id);
+
+                        return Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.deepOrange,
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                      child: animal.imageUrl.isEmpty
+                                          ? const Center(
+                                              child: Icon(Icons.pets, size: 40, color: Colors.white),
+                                            )
+                                          : Image.asset(
+                                              animal.imageUrl,
+                                              fit: BoxFit.contain,
+                                              width: double.infinity,
+                                            ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(animal.nama,
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        Text(animal.lokasi,
+                                            style: const TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 8.0),
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: Icon(Icons.favorite_border, color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isAdmin && isFirebaseData)
+                              Positioned(
+                                right: 4,
+                                top: 4,
+                                child: Row(
                                   children: [
-                                    Text(animal.nama,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                    Text(animal.lokasi,
-                                        style: const TextStyle(color: Colors.white)),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => TambahAdopsiPage(hewanEdit: animal),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                                      onPressed: () {
+                                        _konfirmasiHapus(animal);
+                                      },
+                                    ),
                                   ],
                                 ),
                               ),
-                              const Padding(
-                                padding: EdgeInsets.only(right: 8.0),
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Icon(Icons.favorite_border, color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
+                          ],
                         );
                       },
                     );

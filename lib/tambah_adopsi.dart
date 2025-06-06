@@ -4,7 +4,9 @@ import 'adopsi_model.dart';
 import 'services/adopsi_service.dart';
 
 class TambahAdopsiPage extends StatefulWidget {
-  const TambahAdopsiPage({Key? key}) : super(key: key);
+  final HewanAdopsi? hewanEdit;
+
+  const TambahAdopsiPage({Key? key, this.hewanEdit}) : super(key: key);
 
   @override
   State<TambahAdopsiPage> createState() => _TambahAdopsiPageState();
@@ -21,6 +23,24 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
   String? _selectedGender;
   String? _selectedKategori;
   final List<String> _kategoriList = ['Kucing', 'Anjing', 'Burung', 'Kelinci', 'Lainnya'];
+  late bool _isEditing;
+
+  @override
+  void initState() {
+    super.initState();
+    final hewan = widget.hewanEdit;
+    _isEditing = hewan != null;
+
+    if (_isEditing) {
+      _namaController.text = hewan!.nama;
+      _umurController.text = hewan.umur;
+      _beratController.text = hewan.beratBadan;
+      _lokasiController.text = hewan.lokasi;
+      _deskripsiController.text = hewan.deskripsi;
+      _selectedGender = hewan.jenisKelamin;
+      _selectedKategori = hewan.kategori;
+    }
+  }
 
   @override
   void dispose() {
@@ -34,8 +54,8 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate() && _selectedGender != null && _selectedKategori != null) {
-      final newHewan = HewanAdopsi(
-        id: Uuid().v4(),
+      final hewan = HewanAdopsi(
+        id: _isEditing ? widget.hewanEdit!.id : Uuid().v4(),
         nama: _namaController.text,
         umur: _umurController.text,
         jenisKelamin: _selectedGender!,
@@ -43,12 +63,16 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
         kategori: _selectedKategori!,
         deskripsi: _deskripsiController.text,
         lokasi: _lokasiController.text,
-        imageUrl: '', // Kosongkan jika tidak ada gambar
+        imageUrl: _isEditing ? widget.hewanEdit!.imageUrl : '', // simpan kembali jika sudah ada
       );
 
       try {
-        await AdopsiService().tambahHewan(newHewan);
-        if (mounted) Navigator.pop(context); // kembali ke halaman sebelumnya
+        if (_isEditing) {
+          await AdopsiService().updateHewan(hewan);
+        } else {
+          await AdopsiService().tambahHewan(hewan);
+        }
+        if (mounted) Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menyimpan data: $e')),
@@ -59,9 +83,12 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
 
   @override
   Widget build(BuildContext context) {
+    final title = _isEditing ? 'Edit Hewan Adopsi' : 'Tambah Hewan Adopsi';
+    final buttonText = _isEditing ? 'Simpan' : 'Tambah';
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Hewan Adopsi'),
+        title: Text(title),
         backgroundColor: Colors.deepOrange,
       ),
       body: Padding(
@@ -139,7 +166,7 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
                 child: ElevatedButton(
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
-                  child: const Text('Tambah'),
+                  child: Text(buttonText),
                 ),
               )
             ],
