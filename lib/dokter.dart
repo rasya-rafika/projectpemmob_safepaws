@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'dokter_model.dart'; // Import kelas Dokter dari sini
+import 'dokter_model.dart';
 import 'login.dart';
-import 'models.dart'; // Hanya untuk UserRole
 import 'services/dokter_service.dart';
+import 'user_model.dart';
 
 class DokterPage extends StatefulWidget {
   final UserRole userRole;

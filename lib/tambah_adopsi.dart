@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
 import 'adopsi_model.dart';
 import 'services/adopsi_service.dart';
 
 class TambahAdopsiPage extends StatefulWidget {
   final HewanAdopsi? hewanEdit;
 
-  const TambahAdopsiPage({Key? key, this.hewanEdit}) : super(key: key);
+  const TambahAdopsiPage({super.key, this.hewanEdit});
 
   @override
   State<TambahAdopsiPage> createState() => _TambahAdopsiPageState();

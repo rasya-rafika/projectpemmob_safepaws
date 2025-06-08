@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'dokter.dart';
-import 'adopsi.dart';
-import 'login.dart';
-import 'models.dart';
 
+import 'adopsi.dart';
+import 'dokter.dart';
+import 'komunitas.dart';
+import 'user_model.dart';
 
 class HomePage extends StatelessWidget {
   final UserRole userRole;
 
-  const HomePage({Key? key, required this.userRole}) : super(key: key);
+  const HomePage({super.key, required this.userRole});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,10 @@ class HomePage extends StatelessWidget {
               children: [
                 // Search Bar
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: orange,
                     borderRadius: BorderRadius.circular(30),
@@ -57,7 +60,10 @@ class HomePage extends StatelessWidget {
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Petsave', style: TextStyle(color: Colors.white70)),
+                          Text(
+                            'Petsave',
+                            style: TextStyle(color: Colors.white70),
+                          ),
                           SizedBox(height: 4),
                           Text(
                             '200 koin',
@@ -80,8 +86,6 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Fitur Grid
                 // Fitur Grid
                 GridView.count(
                   crossAxisCount: 2,
@@ -103,26 +107,33 @@ class HomePage extends StatelessWidget {
                         );
                       },
                     ),
-
                     _buildFiturItem(
                       context,
                       title: 'Adopsi',
-                      imagePath: 'assets/images/ic_shelter.png',
+                      imagePath:'assets/images/ic_shelter.png',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => AdopsiPage(userRole: userRole)),
+                          MaterialPageRoute(
+                            builder: (_) => AdopsiPage(userRole: userRole),
+                          ),
                         );
-
-
                       },
                     ),
-
                     _buildFiturItem(
                       context,
                       title: 'Komunitas',
                       imagePath: 'assets/images/ic_komunitas.png',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => KomunitasPage(userRole: userRole),
+                          ),
+                        );
+                      },
                     ),
+
                     _buildFiturItem(
                       context,
                       title: 'Kontak',
@@ -130,7 +141,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ],
                 ),
-
 
                 const SizedBox(height: 24),
 
@@ -169,50 +179,50 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildFiturItem(
-  BuildContext context, {
-  required String title,
-  String? imagePath,
-  Widget? iconWidget,
-  VoidCallback? onTap,
-}) {
-  final imageContent = iconWidget ??
-      (imagePath != null
-          ? Image.asset(imagePath, width: 80, height: 80)
-          : const Icon(Icons.help_outline, size: 60, color: Colors.grey));
+    BuildContext context, {
+    required String title,
+    String? imagePath,
+    Widget? iconWidget,
+    VoidCallback? onTap,
+  }) {
+    final imageContent =
+        iconWidget ??
+        (imagePath != null
+            ? Image.asset(imagePath, width: 80, height: 80)
+            : const Icon(Icons.help_outline, size: 60, color: Colors.grey));
 
-  return InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(16),
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(16),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            imageContent,
+            const SizedBox(height: 12),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          imageContent,
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 
   Widget _buildArtikelCard(String imagePath) {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.asset(imagePath, width: 180, height: 120, fit: BoxFit.cover),
+        child: Image.asset(
+          imagePath,
+          width: 180,
+          height: 120,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

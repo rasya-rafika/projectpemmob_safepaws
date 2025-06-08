@@ -20,7 +20,7 @@ Future<void> main() async {
 }
 
 class SafePawsApp extends StatelessWidget {
-  const SafePawsApp({Key? key}) : super(key: key);
+  const SafePawsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class SafePawsApp extends StatelessWidget {
 }
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
