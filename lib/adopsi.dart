@@ -4,6 +4,7 @@ import 'adopsi_model.dart';
 import 'services/adopsi_service.dart';
 import 'tambah_adopsi.dart';
 import 'user_model.dart';
+import 'detail_hewan.dart';
 
 class AdopsiPage extends StatefulWidget {
   final UserRole userRole;
@@ -132,14 +133,17 @@ class _AdopsiPageState extends State<AdopsiPage> {
                     TextSpan(
                       children: [
                         TextSpan(
-                            text: 'Adopt\n',
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepOrange)),
+                          text: 'Adopt\n',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepOrange,
+                          ),
+                        ),
                         TextSpan(
-                            text: 'Hewan favoritmu',
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                          text: 'Hewan favoritmu',
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
@@ -147,6 +151,7 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
+              // Tambah tombol hanya admin
               if (isAdmin)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -197,6 +202,7 @@ class _AdopsiPageState extends State<AdopsiPage> {
               ),
               const SizedBox(height: 16),
 
+              // Grid hewan
               Expanded(
                 child: StreamBuilder<List<HewanAdopsi>>(
                   stream: AdopsiService().streamHewanAdopsi(),
@@ -228,79 +234,87 @@ class _AdopsiPageState extends State<AdopsiPage> {
                         final animal = filteredAnimals[index];
                         final isFirebaseData = !_dummyAnimals.any((d) => d.id == animal.id);
 
-                        return Stack(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.deepOrange,
-                                borderRadius: BorderRadius.circular(16),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DetailHewanPage(hewan: animal),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                      child: animal.imageUrl.isEmpty
-                                          ? const Center(
-                                              child: Icon(Icons.pets, size: 40, color: Colors.white),
-                                            )
-                                          : Image.asset(
-                                              animal.imageUrl,
-                                              fit: BoxFit.contain,
-                                              width: double.infinity,
-                                            ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(animal.nama,
-                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                        Text(animal.lokasi,
-                                            style: const TextStyle(color: Colors.white)),
-                                      ],
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(right: 8.0),
-                                    child: Align(
-                                      alignment: Alignment.topRight,
-                                      child: Icon(Icons.favorite_border, color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (isAdmin && isFirebaseData)
-                              Positioned(
-                                right: 4,
-                                top: 4,
-                                child: Row(
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.deepOrange,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit, color: Colors.white, size: 20),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => TambahAdopsiPage(hewanEdit: animal),
-                                          ),
-                                        );
-                                      },
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                        child: animal.imageUrl.isEmpty
+                                            ? const Center(
+                                                child: Icon(Icons.pets, size: 40, color: Colors.white),
+                                              )
+                                            : Image.asset(
+                                                animal.imageUrl,
+                                                fit: BoxFit.contain,
+                                                width: double.infinity,
+                                              ),
+                                      ),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.white, size: 20),
-                                      onPressed: () {
-                                        _konfirmasiHapus(animal);
-                                      },
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(animal.nama,
+                                              style: const TextStyle(
+                                                  color: Colors.white, fontWeight: FontWeight.bold)),
+                                          Text(animal.lokasi, style: const TextStyle(color: Colors.white)),
+                                        ],
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(right: 8.0),
+                                      child: Align(
+                                        alignment: Alignment.topRight,
+                                        child: Icon(Icons.favorite_border, color: Colors.white),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                          ],
+                              if (isAdmin && isFirebaseData)
+                                Positioned(
+                                  right: 4,
+                                  top: 4,
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => TambahAdopsiPage(hewanEdit: animal),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                                        onPressed: () => _konfirmasiHapus(animal),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         );
                       },
                     );

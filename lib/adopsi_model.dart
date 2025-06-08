@@ -29,7 +29,7 @@ class HewanAdopsi {
       'beratBadan': beratBadan,
       'kategori': kategori,
       'deskripsi': deskripsi,
-      'imageUrl': imageUrl, // tetap menyimpan string kosong
+      'imageUrl': imageUrl,
       'lokasi': lokasi,
     };
   }
@@ -43,7 +43,7 @@ class HewanAdopsi {
       beratBadan: data['beratBadan'] ?? '',
       kategori: data['kategori'] ?? '',
       deskripsi: data['deskripsi'] ?? '',
-      imageUrl: data['imageUrl'] ?? '', // kosongkan jika tidak ada gambar
+      imageUrl: data['imageUrl'] ?? '',
       lokasi: data['lokasi'] ?? '',
     );
   }
