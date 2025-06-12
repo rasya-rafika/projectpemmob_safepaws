@@ -1,178 +1,188 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'komunitas_buatpostingan.dart';
 import 'komunitas_model.dart';
 import 'user_model.dart';
 
 class KomunitasPage extends StatefulWidget {
   final UserRole userRole;
+  final String username;
 
-  const KomunitasPage({Key? key, required this.userRole}) : super(key: key);
+  const KomunitasPage({
+    Key? key,
+    required this.userRole,
+    required this.username,
+  }) : super(key: key);
 
   @override
   State<KomunitasPage> createState() => _KomunitasPageState();
 }
 
 class _KomunitasPageState extends State<KomunitasPage> {
-  final TextEditingController _postController = TextEditingController();
-  final String currentUser = "kamu";
-  
-  List<Post> posts = [];
-  bool isLoading = true;
-  bool isPosting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPosts();
-  }
-
-  Future<void> _loadPosts() async {
-    // Simulate loading
-    await Future.delayed(Duration(seconds: 1));
-    
-    setState(() {
-      posts = [
-        Post(
-          id: "1",
-          username: "davinakaramoy",
-          content: "cara biar kitten mau diem dikit/tenang itu gimana ya guys?",
-          timestamp: DateTime.now().subtract(Duration(hours: 4)),
-          comments: [
-            Comment(
-              id: "1",
-              username: "rayyasum_4d",
-              content: "kalau balik ciku juga udah kurang kenyang...",
-              timestamp: DateTime.now().subtract(Duration(hours: 3)),
-            )
-          ],
-          likes: 16,
-        ),
-      ];
-      isLoading = false;
-    });
-  }
-
-  Future<void> _handleAddPost() async {
-    if (_postController.text.trim().isEmpty) return;
-    
-    setState(() => isPosting = true);
-
-    // Simulate network delay
-    await Future.delayed(Duration(milliseconds: 500));
-    
-    setState(() {
-      posts.insert(0, Post(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        username: currentUser,
-        content: _postController.text.trim(),
-        timestamp: DateTime.now(),
-        comments: [],
-        likes: 0,
-      ));
-      isPosting = false;
-    });
-    
-    _postController.clear();
-    Navigator.pop(context);
-  }
+  final String namaKomunitas = 'Komunitas Pecinta Hewan';
+  final String deskripsiKomunitas =
+      'Menjadi catlovers Indonesia dalam mengkampanyekan kebaikan mereka terhadap manusia.';
+  final String gambarHeader = 'assets/images/komunitas2.png';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Komunitas Pecinta Hewan"),
-        backgroundColor: Colors.orange,
+        backgroundColor: const Color(0xFFFF661E),
+        title: const Text(
+          'komunitas pecinta hewan',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return Card(
-                  margin: EdgeInsets.all(8),
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              child: Text(post.username[0]),
-                            ),
-                            SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(post.username),
-                                Text(
-                                  "${post.timestamp.hour}:${post.timestamp.minute}",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
+      body: Column(
+        children: [
+          // HEADER KOMUNITAS
+          Container(
+            width: double.infinity,
+            color: Colors.white,
+            child: Column(
+              children: [
+                Image.asset(gambarHeader, fit: BoxFit.cover),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        namaKomunitas,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
                         ),
-                        SizedBox(height: 10),
-                        Text(post.content),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.favorite_border),
-                              onPressed: () {
-                                setState(() {
-                                  post.likes++;
-                                });
-                              },
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        deskripsiKomunitas,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Icon(Icons.people, size: 16),
+                          const SizedBox(width: 4),
+                          const Text("17 rb anggota"),
+                          const Spacer(),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Aksi tombol keluar, misal:
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                             ),
-                            Text("${post.likes}"),
-                            SizedBox(width: 20),
-                            IconButton(
-                              icon: Icon(Icons.comment),
-                              onPressed: () {
-                                // Implement comment functionality
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            child: const Text("Keluar"),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 1),
+
+          // POSTINGAN FEED
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance
+                      .collection('posts')
+                      .orderBy('timestamp', descending: true)
+                      .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("Belum ada postingan."));
+                }
+
+                final posts =
+                    snapshot.data!.docs
+                        .map((doc) {
+                          try {
+                            return Post.fromFirestore(doc);
+                          } catch (e) {
+                            print('Gagal parsing post: $e');
+                            return null;
+                          }
+                        })
+                        .whereType<Post>()
+                        .toList();
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index];
+                    return _buildPostCard(post);
+                  },
                 );
               },
             ),
+          ),
+        ],
+      ),
+
+      // FAB TAMBAH POSTINGAN
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFFF661E),
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _postController,
-                    decoration: InputDecoration(
-                      hintText: "Apa yang ingin Anda bagikan?",
-                    ),
-                    maxLines: 3,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => KomunitasBuatPostinganPage(
+                    username: widget.username, // ✅ kirim username
                   ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: isPosting ? null : _handleAddPost,
-                    child: isPosting 
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text("Posting"),
-                  ),
-                ],
-              ),
             ),
           );
         },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.orange,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildPostCard(Post post) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '@${post.username}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(post.content),
+            const SizedBox(height: 8),
+            Text(
+              '${post.timestamp.day}/${post.timestamp.month}/${post.timestamp.year}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }

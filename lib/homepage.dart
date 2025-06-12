@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'adopsi.dart';
+import 'artikel.dart';
 import 'dokter.dart';
 import 'komunitas.dart';
-import 'kontak_user.dart';
 import 'kontak_admin.dart';
-import 'artikel.dart';
-import 'user_model.dart';
+import 'kontak_user.dart';
 import 'login.dart';
+import 'user_model.dart';
 
 class HomePage extends StatelessWidget {
+  final String username;
   final UserRole userRole;
 
-  const HomePage({super.key, required this.userRole});
+  const HomePage({
+    Key? key,
+    required this.username,
+    required this.userRole,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

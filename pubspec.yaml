@@ -43,7 +43,6 @@ dependencies:
   firebase_database: ^10.5.7
   firebase_storage: ^11.6.1
   image_picker: ^1.1.1
-  logger: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +76,7 @@ flutter:
     - assets/images/pussy.png
     - assets/images/rocky.png
     - assets/images/willow.png
+    - assets/images/komunitas2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

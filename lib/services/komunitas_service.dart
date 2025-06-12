@@ -1,142 +1,124 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:projectpemmob_safepaws/komunitas_model.dart';
 
 class KomunitasService {
-  static final KomunitasService _instance = KomunitasService._internal();
-  factory KomunitasService() => _instance;
-  KomunitasService._internal();
-
-  final List<Post> _posts = [
-    Post(
-      id: "1",
-      username: "davinakaramoy",
-      content: "cara biar kitten mau diem dikit/tenang itu gimana ya guys? soalnya baru undang, kalo dikasih air, sampai selang gokha ya juga gokha sampai pegel selang tani ngeline kelas selang tani.",
-      timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-      comments: [
-        Comment(
-          id: "1",
-          username: "rayyasum_4d",
-          content: "kalau balik ciku juga udah kurang kenyang aku kejitu dan takut gabisa yeng jago aku makan kuncinya aww apa tauning aku ngetime makin udah katanya mau",
-          timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-        ),
-        Comment(
-          id: "2",
-          username: "anrnovekidsrln_2d",
-          content: "siMiGA gimana ya biar gak ngafeng mau potdimiu udah abisgek makar. dan kalo aja digi haju blau jain dapet apa harus pake sama cairan",
-          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        )
-      ],
-      likes: 16,
-    ),
-  ];
-
-  Future<Post> createPost({required String username, required String content}) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    final newPost = Post(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      username: username,
-      content: content,
-      timestamp: DateTime.now(),
-      comments: [],
-      likes: 0,
-    );
-    _posts.insert(0, newPost);
-    return newPost;
-  }
+  final _postCollection = FirebaseFirestore.instance.collection('posts');
 
   Future<List<Post>> getAllPosts() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List.from(_posts);
-  }
-  Future<Post?> getPostById(String id) async {
-    await Future.delayed(Duration(milliseconds: 200));
-    try {
-      return _posts.firstWhere((post) => post.id == id);
-    } catch (e) {
-      return null;
-    }
+    final snapshot = await _postCollection.orderBy('timestamp', descending: true).get();
+    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
   }
 
-  Future<bool> likePost(String postId) async {
-    await Future.delayed(Duration(milliseconds: 200));
-    try {
-      final post = _posts.firstWhere((post) => post.id == postId);
-      post.likes++;
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<Post> createPost({
+    required String username,
+    required String content,
+  }) async {
+    final newDoc = await _postCollection.add({
+      'username': username,
+      'content': content,
+      'timestamp': Timestamp.now(),
+      'likes': 0,
+      'likedBy': [],
+    });
+
+    final snapshot = await newDoc.get();
+    return Post.fromFirestore(snapshot);
   }
 
-  Future<bool> unlikePost(String postId) async {
-    await Future.delayed(Duration(milliseconds: 200));
-    try {
-      final post = _posts.firstWhere((post) => post.id == postId);
-      if (post.likes > 0) post.likes--;
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<void> likePost(String postId, String userId) async {
+    final doc = _postCollection.doc(postId);
+    await FirebaseFirestore.instance.runTransaction((tx) async {
+      final snapshot = await tx.get(doc);
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data()!;
+      final likedBy = List<String>.from(data['likedBy'] ?? []);
+      final alreadyLiked = likedBy.contains(userId);
+
+      if (!alreadyLiked) {
+        likedBy.add(userId);
+        tx.update(doc, {
+          'likedBy': likedBy,
+          'likes': FieldValue.increment(1),
+        });
+      }
+    });
   }
 
-  Future<bool> deletePost(String postId) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    try {
-      _posts.removeWhere((post) => post.id == postId);
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<void> unlikePost(String postId, String userId) async {
+    final doc = _postCollection.doc(postId);
+    await FirebaseFirestore.instance.runTransaction((tx) async {
+      final snapshot = await tx.get(doc);
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data()!;
+      final likedBy = List<String>.from(data['likedBy'] ?? []);
+      if (likedBy.contains(userId)) {
+        likedBy.remove(userId);
+        tx.update(doc, {
+          'likedBy': likedBy,
+          'likes': FieldValue.increment(-1),
+        });
+      }
+    });
   }
 
-  Future<Comment> addComment({required String postId, required String username, required String content}) async {
-    await Future.delayed(Duration(milliseconds: 400));
-    final post = _posts.firstWhere((post) => post.id == postId);
-    final newComment = Comment(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      username: username,
-      content: content,
-      timestamp: DateTime.now(),
-    );
-    post.comments.add(newComment);
-    return newComment;
+  Future<void> deletePost(String postId) async {
+    await _postCollection.doc(postId).delete();
   }
 
-  Future<List<Comment>> getCommentsByPostId(String postId) async {
-    await Future.delayed(Duration(milliseconds: 200));
-    try {
-      final post = _posts.firstWhere((post) => post.id == postId);
-      return List.from(post.comments);
-    } catch (e) {
-      return [];
-    }
+  Future<List<Comment>> getComments(String postId) async {
+    final commentsSnapshot = await _postCollection
+        .doc(postId)
+        .collection('comments')
+        .orderBy('timestamp')
+        .get();
+
+    return commentsSnapshot.docs.map((doc) => Comment.fromFirestore(doc)).toList();
   }
 
-  Future<bool> deleteComment(String postId, String commentId) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    try {
-      final post = _posts.firstWhere((post) => post.id == postId);
-      post.comments.removeWhere((comment) => comment.id == commentId);
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<Comment> addComment({
+    required String postId,
+    required String username,
+    required String content,
+  }) async {
+    final commentRef = await _postCollection
+        .doc(postId)
+        .collection('comments')
+        .add({
+      'username': username,
+      'content': content,
+      'timestamp': Timestamp.now(),
+    });
+
+    final snapshot = await commentRef.get();
+    return Comment.fromFirestore(snapshot);
+  }
+
+  Future<void> deleteComment({
+    required String postId,
+    required String commentId,
+  }) async {
+    await _postCollection
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .delete();
   }
 
   Future<List<Post>> searchPosts(String keyword) async {
-    await Future.delayed(Duration(milliseconds: 400));
-    return _posts.where((post) {
-      return post.content.toLowerCase().contains(keyword.toLowerCase()) ||
-             post.username.toLowerCase().contains(keyword.toLowerCase());
+    final snapshot = await _postCollection.get();
+    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).where((post) {
+      return post.username.toLowerCase().contains(keyword.toLowerCase()) ||
+             post.content.toLowerCase().contains(keyword.toLowerCase());
     }).toList();
   }
 
   Future<List<Post>> getPostsByUser(String username) async {
-    await Future.delayed(Duration(milliseconds: 300));
-    return _posts.where((post) => post.username == username).toList();
-  }
-
-  Future<List<Post>> refreshPosts() async {
-    await Future.delayed(Duration(seconds: 1));
-    return List.from(_posts);
+    final snapshot = await _postCollection
+        .where('username', isEqualTo: username)
+        .orderBy('timestamp', descending: true)
+        .get();
+    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
   }
 }

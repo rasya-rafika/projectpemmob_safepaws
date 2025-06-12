@@ -17,8 +17,16 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   final List<model.User> _users = [
-    model.User(username: 'admin', password: 'admin123', role: model.UserRole.admin),
-    model.User(username: 'user', password: 'user123', role: model.UserRole.user),
+    model.User(
+      username: 'admin',
+      password: 'admin123',
+      role: model.UserRole.admin,
+    ),
+    model.User(
+      username: 'user',
+      password: 'user123',
+      role: model.UserRole.user,
+    ),
   ];
 
   @override
@@ -52,7 +60,11 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => HomePage(userRole: foundUser!.role),
+            builder:
+                (_) => HomePage(
+                  userRole: foundUser!.role,
+                  username: foundUser.username, // ✅ tambahkan ini
+                ),
           ),
         );
       } else {
@@ -87,11 +99,19 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: Column(
                 children: [
-                  Image.asset('assets/images/ic_paw_logo.png', width: 160, height: 160),
+                  Image.asset(
+                    'assets/images/ic_paw_logo.png',
+                    width: 160,
+                    height: 160,
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Welcome to SafePaws',
-                    style: TextStyle(color: Color(0xFFFF6600), fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Color(0xFFFF6600),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -115,13 +135,23 @@ class _LoginPageState extends State<LoginPage> {
                     const Center(
                       child: Text(
                         'Login',
-                        style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
 
                     // Username
-                    const Text('Username', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Username',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _usernameController,
@@ -130,19 +160,32 @@ class _LoginPageState extends State<LoginPage> {
                         hintText: 'Username',
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Username wajib diisi' : null,
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Username wajib diisi'
+                                  : null,
                     ),
 
                     const SizedBox(height: 16),
 
                     // Password
-                    const Text('Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _passwordController,
@@ -152,13 +195,20 @@ class _LoginPageState extends State<LoginPage> {
                         hintText: 'Password',
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Password wajib diisi' : null,
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Password wajib diisi'
+                                  : null,
                     ),
 
                     const SizedBox(height: 24),
@@ -171,11 +221,22 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: _isLoading ? null : _login,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF6600),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('LOGIN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        child:
+                            _isLoading
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                                : const Text(
+                                  'LOGIN',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
                       ),
                     ),
 
@@ -185,8 +246,14 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
-                        Text('Forgot Password?', style: TextStyle(color: Colors.white)),
-                        Text('Belum punya akun?', style: TextStyle(color: Colors.white)),
+                        Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Belum punya akun?',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                   ],
