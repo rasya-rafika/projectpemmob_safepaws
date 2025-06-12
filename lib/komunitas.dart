@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'komunitas_buatpostingan.dart';
+import 'komunitas_komentar.dart';
 import 'komunitas_model.dart';
 import 'user_model.dart';
 
@@ -22,28 +23,32 @@ class KomunitasPage extends StatefulWidget {
 class _KomunitasPageState extends State<KomunitasPage> {
   final String namaKomunitas = 'Komunitas Pecinta Hewan';
   final String deskripsiKomunitas =
-      'Menjadi catlovers Indonesia dalam mengkampanyekan kebaikan mereka terhadap manusia.';
-  final String gambarHeader = 'assets/images/komunitas2.png';
+      'Komunitas Pecinta Hewan adalah tempat kumpul buat kamu yang sayang banget sama hewan. Bisa sharing, tanya-tanya, atau sekadar seru-seruan bareng sesama penyayang hewan.';
+  final String gambarHeader = 'assets/images/komunitaspage.jpg';
+
+  final Map<String, bool> _expandedComments = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFF661E),
-        title: const Text(
-          'komunitas pecinta hewan',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // HEADER KOMUNITAS
-          Container(
-            width: double.infinity,
-            color: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: const Color(0xFFFF661E),
+            expandedHeight: 60,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: const Text(
+              'Safepaws Komunitas',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+
+          SliverToBoxAdapter(
             child: Column(
               children: [
                 Image.asset(gambarHeader, fit: BoxFit.cover),
@@ -66,39 +71,21 @@ class _KomunitasPageState extends State<KomunitasPage> {
                       ),
                       const SizedBox(height: 10),
                       Row(
-                        children: [
-                          const Icon(Icons.people, size: 16),
-                          const SizedBox(width: 4),
-                          const Text("17 rb anggota"),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Aksi tombol keluar, misal:
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                            ),
-                            child: const Text("Keluar"),
-                          ),
+                        children: const [
+                          Icon(Icons.people, size: 16),
+                          SizedBox(width: 4),
+                          Text("17 rb anggota"),
                         ],
                       ),
                     ],
                   ),
                 ),
+                const Divider(height: 1),
               ],
             ),
           ),
 
-          const Divider(height: 1),
-
-          // POSTINGAN FEED
-          Expanded(
+          SliverToBoxAdapter(
             child: StreamBuilder<QuerySnapshot>(
               stream:
                   FirebaseFirestore.instance
@@ -107,11 +94,19 @@ class _KomunitasPageState extends State<KomunitasPage> {
                       .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text("Belum ada postingan."));
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: Text("Belum ada postingan.")),
+                  );
                 }
 
                 final posts =
@@ -128,7 +123,9 @@ class _KomunitasPageState extends State<KomunitasPage> {
                         .toList();
 
                 return ListView.builder(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: posts.length,
                   itemBuilder: (context, index) {
                     final post = posts[index];
@@ -141,19 +138,22 @@ class _KomunitasPageState extends State<KomunitasPage> {
         ],
       ),
 
-      // FAB TAMBAH POSTINGAN
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFFF661E),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder:
-                  (context) => KomunitasBuatPostinganPage(
-                    username: widget.username, // ✅ kirim username
-                  ),
+                  (context) =>
+                      KomunitasBuatPostinganPage(username: widget.username),
             ),
           );
+
+          if (result == true) {
+            // Optional: setState kalau perlu trigger build
+            setState(() {});
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -162,28 +162,172 @@ class _KomunitasPageState extends State<KomunitasPage> {
 
   Widget _buildPostCard(Post post) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '@${post.username}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => KomentarPage(
+                    post: post,
+                    currentUsername: widget.username,
+                  ),
             ),
-            const SizedBox(height: 8),
-            Text(post.content),
-            const SizedBox(height: 8),
-            Text(
-              '${post.timestamp.day}/${post.timestamp.month}/${post.timestamp.year}',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    '@${post.username}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'hapus') {
+                        _confirmHapus(post.id);
+                      }
+                    },
+                    itemBuilder:
+                        (context) => [
+                          const PopupMenuItem(
+                            value: 'hapus',
+                            child: Text('Hapus'),
+                          ),
+                        ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(post.content),
+              const SizedBox(height: 8),
+              Text(
+                '${post.timestamp.day}/${post.timestamp.month}/${post.timestamp.year}',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      post.likedBy.contains(widget.username)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color:
+                          post.likedBy.contains(widget.username)
+                              ? Colors.red
+                              : Colors.black,
+                      size: 20,
+                    ),
+                    onPressed: () => _toggleLike(post),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 4),
+                  Text('${post.likedBy.length}'),
+                  const SizedBox(width: 16),
+                  const Icon(Icons.comment, size: 20),
+                  const SizedBox(width: 4),
+                  StreamBuilder<QuerySnapshot>(
+                    stream:
+                        FirebaseFirestore.instance
+                            .collection('posts')
+                            .doc(post.id)
+                            .collection('komentar')
+                            .snapshots(),
+                    builder: (context, snapshot) {
+                      final count = snapshot.data?.docs.length ?? 0;
+                      return Text('$count');
+                    },
+                  ),
+                ],
+              ),
+              if (_expandedComments[post.id] == true)
+                _buildKomentarList(post.id),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  void _toggleKomentar(String postId) {
+    setState(() {
+      _expandedComments[postId] = !(_expandedComments[postId] ?? false);
+    });
+  }
+
+  Widget _buildKomentarList(String postId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance
+              .collection('posts')
+              .doc(postId)
+              .collection('komentar')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        final komentar = snapshot.data!.docs;
+        return Column(
+          children:
+              komentar.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('@${data['username'] ?? ''}'),
+                  subtitle: Text(data['konten'] ?? ''),
+                );
+              }).toList(),
+        );
+      },
+    );
+  }
+
+  void _toggleLike(Post post) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc(post.id);
+    final isLiked = post.likedBy.contains(widget.username);
+
+    await docRef.update({
+      'likedBy':
+          isLiked
+              ? FieldValue.arrayRemove([widget.username])
+              : FieldValue.arrayUnion([widget.username]),
+    });
+  }
+
+  void _confirmHapus(String postId) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text("Hapus Postingan"),
+            content: const Text("Yakin ingin menghapus postingan ini?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("Batal"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await FirebaseFirestore.instance
+                      .collection('posts')
+                      .doc(postId)
+                      .delete();
+                  Navigator.pop(ctx);
+                },
+                child: const Text("Hapus"),
+              ),
+            ],
+          ),
     );
   }
 }

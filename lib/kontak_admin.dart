@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
+
 import 'kontak_model.dart';
 import 'services/kontak_service.dart';
 

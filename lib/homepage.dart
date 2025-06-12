@@ -13,11 +13,8 @@ class HomePage extends StatelessWidget {
   final String username;
   final UserRole userRole;
 
-  const HomePage({
-    Key? key,
-    required this.username,
-    required this.userRole,
-  }) : super(key: key);
+  const HomePage({Key? key, required this.username, required this.userRole})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +35,32 @@ class HomePage extends StatelessWidget {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Konfirmasi Logout'),
-                  content: const Text('Apakah kamu yakin ingin logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Batal'),
+                builder:
+                    (_) => AlertDialog(
+                      title: const Text('Konfirmasi Logout'),
+                      content: const Text('Apakah kamu yakin ingin logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Batal'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LoginPage(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text('Logout'),
+                        ),
+                      ],
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                          (route) => false,
-                        );
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
               );
             },
           ),
@@ -94,46 +96,6 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Coin Box
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: darkOrange,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Petsave',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '200 koin',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: const [
-                          Icon(Icons.add_circle_outline, color: Colors.white),
-                          SizedBox(width: 16),
-                          Icon(Icons.history, color: Colors.white),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
 
                 // Fitur Grid
                 GridView.count(
@@ -174,10 +136,14 @@ class HomePage extends StatelessWidget {
                       title: 'Komunitas',
                       imagePath: 'assets/images/ic_komunitas.png',
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => KomunitasPage(userRole: userRole),
+                            builder:
+                                (_) => KomunitasPage(
+                                  userRole: userRole,
+                                  username: username,
+                                ),
                           ),
                         );
                       },
@@ -190,12 +156,16 @@ class HomePage extends StatelessWidget {
                         if (userRole == UserRole.admin) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const KontakAdminPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const KontakAdminPage(),
+                            ),
                           );
                         } else {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const FormKontakPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const FormKontakPage(),
+                            ),
                           );
                         }
                       },
@@ -254,7 +224,8 @@ class HomePage extends StatelessWidget {
     Widget? iconWidget,
     VoidCallback? onTap,
   }) {
-    final imageContent = iconWidget ??
+    final imageContent =
+        iconWidget ??
         (imagePath != null
             ? Image.asset(imagePath, width: 80, height: 80)
             : const Icon(Icons.help_outline, size: 60, color: Colors.grey));
