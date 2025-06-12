@@ -65,36 +65,6 @@ class _DokterPageState extends State<DokterPage> {
     );
   }
 
-  void _confirmLogout() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Konfirmasi Logout'),
-        content: const Text('Apakah Anda yakin ingin logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6600),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showAddEditDoctorDialog({Dokter? dokter}) {
     if (dokter != null) {
       _namaController.text = dokter.nama;
@@ -260,28 +230,10 @@ class _DokterPageState extends State<DokterPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dokter Hewan', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFFA0451B),
-        actions: [
-          TextButton(
-            onPressed: _confirmLogout,
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
-          ),
-        ],
+        backgroundColor: Colors.orange,
       ),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFFFF6600),
-            child: Row(
-              children: [
-                const Icon(Icons.person, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('Login sebagai: ${isAdmin ? 'Admin' : 'User Biasa'}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              ],
-            ),
-          ),
           Expanded(
             child: StreamBuilder<List<Dokter>>(
               stream: DokterService().getDokterList(),

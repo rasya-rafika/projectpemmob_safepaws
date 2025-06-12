@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'adopsi.dart';
 import 'dokter.dart';
 import 'komunitas.dart';
+import 'kontak_user.dart';
+import 'kontak_admin.dart';
+import 'artikel.dart';
 import 'user_model.dart';
+import 'login.dart';
 
 class HomePage extends StatelessWidget {
   final UserRole userRole;
@@ -16,6 +20,45 @@ class HomePage extends StatelessWidget {
     final darkOrange = Color(0xFF8B3A00);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: orange,
+        automaticallyImplyLeading: false,
+        title: Text(
+          userRole == UserRole.admin ? 'Hai Admin!' : 'Hai User!',
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Konfirmasi Logout'),
+                  content: const Text('Apakah kamu yakin ingin logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Batal'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -86,6 +129,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+
                 // Fitur Grid
                 GridView.count(
                   crossAxisCount: 2,
@@ -133,11 +177,23 @@ class HomePage extends StatelessWidget {
                         );
                       },
                     ),
-
                     _buildFiturItem(
                       context,
                       title: 'Kontak',
                       imagePath: 'assets/images/ic_kontak.png',
+                      onTap: () {
+                        if (userRole == UserRole.admin) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const KontakAdminPage()),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const FormKontakPage()),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -146,7 +202,14 @@ class HomePage extends StatelessWidget {
 
                 // Artikel Hewan Button
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ArtikelPage(userRole: userRole),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.add),
                   label: const Text('Artikel Hewan'),
                   style: ElevatedButton.styleFrom(
@@ -157,6 +220,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
 
                 // Gambar Artikel
@@ -185,8 +249,7 @@ class HomePage extends StatelessWidget {
     Widget? iconWidget,
     VoidCallback? onTap,
   }) {
-    final imageContent =
-        iconWidget ??
+    final imageContent = iconWidget ??
         (imagePath != null
             ? Image.asset(imagePath, width: 80, height: 80)
             : const Icon(Icons.help_outline, size: 60, color: Colors.grey));

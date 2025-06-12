@@ -83,7 +83,7 @@ class _FormAdopsiPageState extends State<FormAdopsiPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Form Adopsi'),
-        backgroundColor: Colors.deepOrangeAccent,
+        backgroundColor: Colors.orange,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

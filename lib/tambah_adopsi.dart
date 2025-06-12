@@ -90,7 +90,7 @@ class _TambahAdopsiPageState extends State<TambahAdopsiPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.orange,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
