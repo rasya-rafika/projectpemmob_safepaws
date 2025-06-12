@@ -1,41 +1,31 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class Community{
+class Post {
   final String id;
-  final String name;
-  final String description;
-  final String adminId;
-  final List<String> members;
-  final Timestamp createdAt;
+  final String username;
+  final String content;
+  final DateTime timestamp;
+  final List<Comment> comments;
+  int likes;
 
-  Community({
+  Post({
     required this.id,
-    required this.name,
-    required this.description,
-    required this.adminId,
-    required this.members,
-    required this.createdAt,
+    required this.username,
+    required this.content,
+    required this.timestamp,
+    required this.comments,
+    this.likes = 0,
   });
+}
 
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'description': description,
-      'adminId': adminId,
-      'members': members,
-      'createdAt': createdAt,
-    };
-  }
-  
-  factory Community.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return Community(
-      id: doc.id,
-      name: data['name'] ?? '',
-      description: data['description'] ?? '',
-      adminId: data['adminId'] ?? '',
-      members: List<String>.from(data['members'] ?? []),
-      createdAt: data['createdAt'] ?? Timestamp.now(),
-    );
-  }
+class Comment {
+  final String id;
+  final String username;
+  final String content;
+  final DateTime timestamp;
+
+  Comment({
+    required this.id,
+    required this.username,
+    required this.content,
+    required this.timestamp,
+  });
 }

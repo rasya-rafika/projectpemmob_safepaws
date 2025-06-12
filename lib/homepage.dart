@@ -110,7 +110,7 @@ class HomePage extends StatelessWidget {
                     _buildFiturItem(
                       context,
                       title: 'Adopsi',
-                      imagePath:'assets/images/ic_shelter.png',
+                      imagePath: 'assets/images/ic_shelter.png',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -125,7 +125,7 @@ class HomePage extends StatelessWidget {
                       title: 'Komunitas',
                       imagePath: 'assets/images/ic_komunitas.png',
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (_) => KomunitasPage(userRole: userRole),
